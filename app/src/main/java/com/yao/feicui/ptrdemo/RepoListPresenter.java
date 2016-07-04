@@ -2,6 +2,8 @@ package com.yao.feicui.ptrdemo;
 
 import android.os.AsyncTask;
 
+import com.hannesdorfmann.mosby.mvp.MvpNullObjectBasePresenter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -9,7 +11,7 @@ import java.util.Random;
 /**
  * Created by 16245 on 2016/07/04.
  */
-public class RepoListPresenter {
+public class RepoListPresenter extends MvpNullObjectBasePresenter<PtrPageView>{
     private RepoListFragment pageView;
 
     public RepoListPresenter(RepoListFragment pageView) {
@@ -49,20 +51,20 @@ public class RepoListPresenter {
             int size = datas.size();
             // 模似空数据时的(视图)情况
             if (size == 0) {
-                pageView.showEmptyView(); // listview不可见了,空的textview可见了
+                getView().showEmptyView(); // listview不可见了,空的textview可见了
             }
             // 模似错误数据时的(视图)情况
             else if (size == 1) {
-                pageView.showErroView("unkown erro"); // listview不可见了,空的textview不可见了,错误的textview可见了
+                getView().showErroView("unkown erro"); // listview不可见了,空的textview不可见了,错误的textview可见了
             }
             // 模似正常获取到了数据的(视图)情况
             else {
-                pageView.showContentView(); // 显示内容视图(让listview能显示)
+                getView().showContentView(); // 显示内容视图(让listview能显示)
                 // 视图进行数据刷新
-                pageView.refreshData(datas);
+                getView().refreshData(datas);
             }
             // 停至结束这次下拉刷新
-            pageView.stopRefresh();
+            getView().stopRefresh();
         }
     }
 
@@ -71,7 +73,7 @@ public class RepoListPresenter {
         @Override protected void onPreExecute() {
             super.onPreExecute();
             // 显示加载中...
-            pageView.showLoadMoreLoading();
+            getView().showLoadMoreLoading();
         }
 
         @Override protected List<String> doInBackground(Void... params) {
@@ -91,9 +93,9 @@ public class RepoListPresenter {
         @Override protected void onPostExecute(List<String> datas) {
             super.onPostExecute(datas);
             // 将加载到的数据添加到视图上
-            pageView.addMoreData(datas);
+            getView().addMoreData(datas);
             // 隐藏加载中....
-            pageView.hideLoadMore();
+            getView().hideLoadMore();
         }
     }
 }

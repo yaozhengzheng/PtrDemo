@@ -12,6 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hannesdorfmann.mosby.mvp.MvpFragment;
 import com.mugen.Mugen;
 import com.mugen.MugenCallbacks;
 
@@ -29,7 +30,7 @@ import in.srain.cube.views.ptr.PtrFrameLayout;
 /**
  * Created by 16245 on 2016/07/01.
  */
-public class RepoListFragment extends Fragment implements PtrView<List<String>>, LoadMoreView<List<String>> {
+public class RepoListFragment extends MvpFragment<PtrPageView,RepoListPresenter> implements PtrPageView {
 
     @Bind(R.id.ptrClassicFrameLayout)
     PtrClassicFrameLayout ptrFrameLayout;
@@ -42,7 +43,7 @@ public class RepoListFragment extends Fragment implements PtrView<List<String>>,
 
     private ArrayAdapter<String> adapter;
     private FooterView footerView; // 上拉加载更多的视图
-    private RepoListPresenter presenter;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -51,18 +52,22 @@ public class RepoListFragment extends Fragment implements PtrView<List<String>>,
 
 
     @Override
+    public RepoListPresenter createPresenter() {
+        return new RepoListPresenter(this);
+    }
+
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        presenter = new RepoListPresenter(this);
         //
-        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1);
+        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
         listView.setAdapter(adapter);
         // 下拉刷新
         ptrFrameLayout.setPtrHandler(new PtrDefaultHandler() {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
-                presenter.loadData();
+                getPresenter().loadData();
             }
         });
 
@@ -72,7 +77,7 @@ public class RepoListFragment extends Fragment implements PtrView<List<String>>,
         Mugen.with(listView, new MugenCallbacks() {
             public void onLoadMore() {
                 Toast.makeText(getContext(), "loadmore", Toast.LENGTH_SHORT).show();
-                presenter.loadMore();
+                getPresenter().loadMore();
             }
 
             // 是否正在加载，此方法用来避免重复加载
